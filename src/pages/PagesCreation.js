@@ -59,7 +59,7 @@ function PagesCreation() {
     // Check if the account already exists
     try {
       const response = await fetch(
-        process.env.REACT_APP_BACKEND_URL + "/checkAccount",
+        process.env.REACT_APP_BACKEND_URL + "/auth/checkAccount",
         {
           method: "POST",
           headers: {
