@@ -1,0 +1,57 @@
+
+.scrollable-page {
+    height: 100vh; /* Set the height to 100% of the viewport height */
+    overflow-y: auto; /* Enable vertical scrolling if the content is taller than the viewport */
+    padding: 20px; /* Add some padding to the content */
+  }
+
+.inscription {
+    max-width: 400px;
+    margin: 100px auto;
+    padding: 20px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .inscription h2 {
+    text-align: center;
+    color: #333;
+  }
+  
+  .inscription form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .inscription input {
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+ 
+  
+  /* Add margin-right for horizontal gap between radio boxes */
+  .inscription label input[type="radio"] {
+    margin-inline: 10px;
+  }
+  
+  .inscription button {
+    background-color: #4caf50;
+    color: #fff;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .inscription button:hover {
+    background-color: #45a049;
+  }
+  
+  /* Add additional styles as needed */
+  

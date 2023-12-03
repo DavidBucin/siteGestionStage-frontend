@@ -1,183 +1,244 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { useHttpClient } from "../shared/hooks/http-hook";
-
+import Navigateur from "../components/Navigateur";
+import "./PageCreation.css";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function PagesCreation() {
-  const {error, sendRequest, clearError } = useHttpClient();
+  const { error, sendRequest, clearError } = useHttpClient();
   const [formData, setFormData] = useState({
-    courriel: '',
-    motDePasse: '',
-    prenom: '',
-    nom: '',
-    telephone: '',
-    adresse: '',
-    nomEntreprise: '',
-    posteTel: ''
+    courriel: "",
+    motDePasse: "",
+    prenom: "",
+    nom: "",
+    telephone: "",
+    adresse: "",
+    nomEntreprise: "",
+    posteTel: "",
   });
-  const [role, setRole] = useState(
-    'etudiant'
-  );
+  const [role, setRole] = useState("etudiant");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'role') {
+    if (name === "role") {
       setRole(value);
     } else {
       setFormData({ ...formData, [name]: value });
     }
   };
 
-  const validateEmail = (email) => {
-    // Check if email is a valid email address
+  const isEmailValid = (email) => {
     return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
+  };
+
+  const isPasswordValid = (password) => {
+    return password.length >= 8;
+  };
+
+  const isPhoneValid = (telephone) => {
+    return /^[0-9]{10}$/.test(telephone);
   };
 
   const isFormInvalid = () => {
     return (
-      formData.courriel.trim() === '' || 
-      formData.motDePasse.trim() === '' || 
-      formData.prenom.trim() === '' || 
-      formData.nom.trim() === '' || 
-      formData.telephone.trim() === '' || 
-      formData.adresse.trim() === '' ||
-      (role === 'employeur' && 
-      (formData.nomEntreprise.trim() === '' || 
-      formData.posteTel.trim() === ''))
+      formData.courriel.trim() === "" ||
+      formData.motDePasse.trim() === "" ||
+      formData.prenom.trim() === "" ||
+      formData.nom.trim() === "" ||
+      formData.telephone.trim() === "" ||
+      formData.adresse.trim() === "" ||
+      (role === "employeur" &&
+        (formData.nomEntreprise.trim() === "" ||
+          formData.posteTel.trim() === ""))
     );
   };
 
-  const handleButtonClick = async (event) =>  {
+  const handleButtonClick = async (event) => {
     event.preventDefault();
-    // Check if any inputs are empty
-    if (isFormInvalid()) {
-      alert('Remplir le formulaire svp');
-      return;
-    }  
-  
-    if (role === 'etudiant') {
-      try {
-        const reponse = await fetch("https://gestion-stage-exe7.onrender.com/api/etudiants/ajouterEtudiant", {
-          method: 'POST',                                          
+    // Check if the account already exists
+    try {
+      const response = await fetch(
+        process.env.REACT_APP_BACKEND_URL + "/checkAccount",
+        {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify({ courriel: formData.courriel, role: role }),
+        }
+      );
 
-        });
-      console.log(reponse);
-      } catch (err) {
-        console.log(err);
-        throw err
+      const result = await response.json();
+
+      if (result.accountExists) {
+        toast.error("Un compte avec cet email existe déjà !");
+        return;
       }
-    } else if (role === 'employeur') {
-      try {
-        const reponse = await fetch("https://gestion-stage-exe7.onrender.com/api/employeurs/ajouterEmployeur", {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formData),
+    } catch (error) {
+      console.error("Error checking account existence:", error);
+      toast.error("Erreur lors de la vérification du compte !");
+      return;
+    }
 
-        });
-      console.log(reponse);
-      } catch (err) {
-        console.log(err);
-        throw err
+    if (isFormInvalid()) {
+      toast.error("Veuillez remplir le formulaire !");
+      return;
+    }
+
+    if (!isEmailValid(formData.courriel)) {
+      toast.error("Veuillez entrer une adresse courriel valide !");
+      return;
+    }
+
+    if (!isPasswordValid(formData.motDePasse)) {
+      toast.error("Le mot de passe doit contenir au moins 8 caractères !");
+      return;
+    }
+
+    if (!isPhoneValid(formData.telephone)) {
+      toast.error("Veuillez entrer un numéro de téléphone valide !");
+      return;
+    } else {
+      if (role === "etudiant") {
+        try {
+          const reponse = await fetch(
+            process.env.REACT_APP_BACKEND_URL + "/etudiants/ajouterEtudiant",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(formData),
+            }
+          );
+          console.log(reponse);
+        } catch (err) {
+          console.log(err);
+          throw err;
+        }
+      } else if (role === "employeur") {
+        try {
+          const reponse = await fetch(
+            process.env.REACT_APP_BACKEND_URL + "/employeurs/ajouterEmployeur",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(formData),
+            }
+          );
+          console.log(reponse);
+        } catch (err) {
+          console.log(err);
+          throw err;
+        }
       }
     }
 
-    window.location.href = '/';
-
+    window.location.href = "/";
   };
 
   return (
-    <div>
-      <h2>Créer un compte</h2>
-      <form>
-        <input
-          type="email"
-          name="courriel"
-          placeholder="Adresse courriel"
-          value={formData.courriel}
-          onChange={handleInputChange}
-        />
-        <input
-          type="password"
-          name="motDePasse"
-          placeholder="Mot de passe"
-          value={formData.motDePasse}
-          onChange={handleInputChange}
-        />
-        <input
-          type="text"
-          name="prenom"
-          placeholder="Prénom"
-          value={formData.prenom}
-          onChange={handleInputChange}
-        />
-        <input
-          type="text"
-          name="nom"
-          placeholder="Nom"
-          value={formData.nom}
-          onChange={handleInputChange}
-        />
-        <input
-          type="text"
-          name="telephone"
-          placeholder="Téléphone"
-          value={formData.telephone}
-          onChange={handleInputChange}
-        />
-        <input
-          type="text"
-          name="adresse"
-          placeholder="Adresse complète"
-          value={formData.adresse}
-          onChange={handleInputChange}
-        />
-        {role === 'employeur' && (
-          <>
-            <input
-              type="text"
-              name="nomEntreprise"
-              placeholder="Nom de l'entreprise"
-              value={formData.nomEntreprise}
-              onChange={handleInputChange}
-            />
-            <input
-              type="text"
-              name="posteTel"
-              placeholder="Numéro de poste"
-              value={formData.posteTel}
-              onChange={handleInputChange}
-            />
-          </>
-        )}
-        <div>
-          <label>
-            <input
-              type="radio"
-              name="role"
-              value="etudiant"
-              checked={role === 'etudiant'}
-              onChange={handleInputChange}
-            />
-            Etudiant
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="role"
-              value="employeur"
-              checked={role === 'employeur'}
-              onChange={handleInputChange}
-            />
-            Employeur
-          </label>
-        </div>
-        <button type="button" onClick={handleButtonClick}>Soumettre</button>
-      </form>
+    <div className="scrollable-page">
+      <Navigateur />
+
+      <div className="inscription">
+        <h2>Créer un compte</h2>
+        <form>
+          <input
+            type="email"
+            name="courriel"
+            placeholder="Adresse courriel"
+            value={formData.courriel}
+            onChange={handleInputChange}
+          />
+          <input
+            type="password"
+            name="motDePasse"
+            placeholder="Mot de passe"
+            value={formData.motDePasse}
+            onChange={handleInputChange}
+          />
+          <input
+            type="text"
+            name="prenom"
+            placeholder="Prénom"
+            value={formData.prenom}
+            onChange={handleInputChange}
+          />
+          <input
+            type="text"
+            name="nom"
+            placeholder="Nom"
+            value={formData.nom}
+            onChange={handleInputChange}
+          />
+          <input
+            type="text"
+            name="telephone"
+            placeholder="Téléphone"
+            value={formData.telephone}
+            onChange={handleInputChange}
+          />
+          <input
+            type="text"
+            name="adresse"
+            placeholder="Adresse complète"
+            value={formData.adresse}
+            onChange={handleInputChange}
+          />
+          {role === "employeur" && (
+            <>
+              <input
+                type="text"
+                name="nomEntreprise"
+                placeholder="Nom de l'entreprise"
+                value={formData.nomEntreprise}
+                onChange={handleInputChange}
+              />
+              <input
+                type="text"
+                name="posteTel"
+                placeholder="Numéro de poste"
+                value={formData.posteTel}
+                onChange={handleInputChange}
+              />
+            </>
+          )}
+          <div>
+            <label>
+              <input
+                type="radio"
+                name="role"
+                value="etudiant"
+                checked={role === "etudiant"}
+                onChange={handleInputChange}
+              />
+              Étudiant
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="role"
+                value="employeur"
+                checked={role === "employeur"}
+                onChange={handleInputChange}
+              />
+              Employeur
+            </label>
+          </div>
+          <button type="button" onClick={handleButtonClick}>
+            Créer le compte
+          </button>
+        </form>
+      </div>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar
+      />
     </div>
   );
 }
