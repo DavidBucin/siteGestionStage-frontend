@@ -1,12 +1,17 @@
 import React, { useState } from "react";
 import { useHttpClient } from "../shared/hooks/http-hook";
 import Navigateur from "../components/Navigateur";
+
+
+
+
 import "./PageCreation.css";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function PagesCreation() {
   const { error, sendRequest, clearError } = useHttpClient();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     courriel: "",
     motDePasse: "",
@@ -56,11 +61,13 @@ function PagesCreation() {
 
   const handleButtonClick = async (event) => {
     event.preventDefault();
-    // Check if the account already exists
+    setLoading(true);
+    
     try {
       const response = await fetch(
         process.env.REACT_APP_BACKEND_URL + "/auth/checkAccount",
         {
+          
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -73,9 +80,11 @@ function PagesCreation() {
 
       if (result.accountExists) {
         toast.error("Un compte avec cet email existe déjà !");
+        setLoading(false);
         return;
       }
     } catch (error) {
+      setLoading(false); // Reset loading on error
       console.error("Error checking account existence:", error);
       toast.error("Erreur lors de la vérification du compte !");
       return;
@@ -83,21 +92,25 @@ function PagesCreation() {
 
     if (isFormInvalid()) {
       toast.error("Veuillez remplir le formulaire !");
+      setLoading(false);
       return;
     }
 
     if (!isEmailValid(formData.courriel)) {
       toast.error("Veuillez entrer une adresse courriel valide !");
+      setLoading(false);
       return;
     }
 
     if (!isPasswordValid(formData.motDePasse)) {
       toast.error("Le mot de passe doit contenir au moins 8 caractères !");
+      setLoading(false);
       return;
     }
 
     if (!isPhoneValid(formData.telephone)) {
       toast.error("Veuillez entrer un numéro de téléphone valide !");
+      setLoading(false);
       return;
     } else {
       if (role === "etudiant") {
@@ -114,7 +127,8 @@ function PagesCreation() {
           );
           console.log(reponse);
         } catch (err) {
-          console.log(err);
+          setLoading(false); // Reset loading on error
+          console.log("BIG" + err);
           throw err;
         }
       } else if (role === "employeur") {
@@ -131,11 +145,15 @@ function PagesCreation() {
           );
           console.log(reponse);
         } catch (err) {
+          setLoading(false); // Reset loading on error
           console.log(err);
           throw err;
         }
       }
     }
+
+    setLoading(false); // Reset loading after successful account creation
+    
 
     window.location.href = "/";
   };
@@ -229,8 +247,12 @@ function PagesCreation() {
               Employeur
             </label>
           </div>
-          <button type="button" onClick={handleButtonClick}>
-            Créer le compte
+          <button type="button" onClick={handleButtonClick} disabled={loading}>
+          {loading ? (
+              <div className="loader"></div>
+            ) : (
+              "Créer le compte"
+            )}
           </button>
         </form>
       </div>

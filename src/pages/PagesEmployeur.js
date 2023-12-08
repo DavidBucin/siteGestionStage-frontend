@@ -20,7 +20,7 @@ const PagesEmployeur = () => {
     // Fetch the list of stages from the backend when the component mounts
     const fetchStages = async () => {
       try {
-        const response = await fetch("https://gestion-stage-exe7.onrender.com/api/stages/" + employeur.emp.nomEntreprise);
+        const response = await fetch(process.env.REACT_APP_BACKEND_URL +"/stages/" + employeur.emp.nomEntreprise);
         if (response.ok) {
           const data = await response.json();
           setStageList(data.stage);
@@ -58,7 +58,7 @@ const PagesEmployeur = () => {
   setIsFormOpen(false);
   event.preventDefault();
   try {
-    const response = await fetch("https://gestion-stage-exe7.onrender.com/api/stages/", {
+    const response = await fetch(process.env.REACT_APP_BACKEND_URL + "/stages/", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ const PagesEmployeur = () => {
       body: JSON.stringify(newStage),
     });
 
-    console.log(response); // Log the response for debugging
+    console.log("Reponse : "+response); // Log the response for debugging
 
     if (!response.ok) {
       throw new Error('Failed to add stage.');

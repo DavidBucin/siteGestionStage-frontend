@@ -12,7 +12,7 @@ const PagesEtudiant = () => {
         // Fetch the list of stages from the backend when the component mounts
         const fetchStages = async () => {
           try {
-            const response = await fetch("https://gestion-stage-exe7.onrender.com/api/stages/listeStage");
+            const response = await fetch(process.env.REACT_APP_BACKEND_URL + "/stages/listeStage");
             if (response.ok) {
               const data = await response.json();
               setStageList(data.stage);

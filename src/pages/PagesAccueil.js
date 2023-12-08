@@ -21,7 +21,7 @@ const PagesAccueil = () => {
             Voici mon site de gestion de stage. <br />
             J'espère que vous l'appréciez
           </p>
-          <p className="copyright">Fait par David Bucin <br />Lien de la <a href="https://youtu.be/rDxmdKWxf2E?si=YZF2xq8Kbp1P6NOo">video</a></p>
+          <p className="copyright">Fait par David Bucin <br />Lien de la <a href="https://youtu.be/rDxmdKWxf2E?si=YZF2xq8Kbp1P6NOo">vidéo</a></p>
           
         </div>
       </body>

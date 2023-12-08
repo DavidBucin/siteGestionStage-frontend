@@ -9,6 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 function PagesConnexion() {
   
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     courriel: "",
     motDePasse: "",
@@ -24,27 +25,31 @@ function PagesConnexion() {
  
 
   const handleSubmit = async (e) => {
+    setLoading(true);
     if (formData.courriel === "" || formData.motDePasse === "") {
       toast.error("Veuillez remplir le formulaire !");
+      setLoading(false);
       return;
     }
 
-    
-    
     else {
       if (formData.role === "etudiant") {
         fetch(process.env.REACT_APP_BACKEND_URL +"/etudiants/" + formData.courriel.trim()).then(response => response.json()).then(etudiant => {
             console.log(etudiant);
             if (etudiant.etu.motDePasse === formData.motDePasse.trim()) {
               navigate('/etudiant');
+              setLoading(false);
+              
             } else {
-              toast.error("courriel ou mot de passe invalide");
+              toast.error("Le courriel ou le mot de passe est invalide !");
+              setLoading(false);
               return;
             }
            })
           .catch(error => {
             console.log(error);
-            toast.error("courriel ou mot de passe invalide");
+            toast.error("Le courriel ou le mot de passe est invalide !");
+            setLoading(false);
             return;
           });
       } else if (formData.role === "employeur") {
@@ -54,14 +59,20 @@ function PagesConnexion() {
             console.log(employeur);
             if (employeur.emp.motDePasse === formData.motDePasse.trim()) {
               navigate("/employeur", { state: { employeur: employeur } });
+              setLoading(false);
+
             } else {
               toast.error("Le courriel ou le mot de passe est invalide !");
+              setLoading(false);
+
               return;
             }
           })
           .catch((error) => {
             console.log(error);
             toast.error("Le courriel ou le mot de passe est invalide !");
+            setLoading(false);
+
             return;
           });
       }
@@ -98,7 +109,7 @@ function PagesConnexion() {
                 checked={formData.role === "etudiant"}
                 onChange={handleInputChange}
               />
-              Etudiant
+              Étudiant
             </label>
             <label>
               <input
@@ -111,7 +122,13 @@ function PagesConnexion() {
               Employeur
             </label>
           </div>
-          <button type="button" onClick={handleSubmit}>Connexion</button>
+          <button type="button" onClick={handleSubmit} disabled={loading}>
+          {loading ? (
+              <div className="loader"></div>
+            ) : (
+              "Connexion"
+            )}
+          </button>
         </form>
       </div>
       <ToastContainer position="bottom-right" autoClose={3000} hideProgressBar />
