@@ -154,7 +154,7 @@ function PagesCreation() {
     setLoading(false); // Reset loading after successful account creation
     
 
-    window.location.href = "/";
+   
   };
 
   return (
