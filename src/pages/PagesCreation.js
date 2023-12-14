@@ -1,13 +1,10 @@
 import React, { useState } from "react";
 import { useHttpClient } from "../shared/hooks/http-hook";
 import Navigateur from "../components/Navigateur";
-
-
-
-
 import "./PageCreation.css";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 
 function PagesCreation() {
   const { error, sendRequest, clearError } = useHttpClient();
@@ -128,7 +125,9 @@ function PagesCreation() {
           console.log(reponse);
         } catch (err) {
           setLoading(false); // Reset loading on error
-          console.log("BIG" + err);
+          console.log(err);
+
+
           throw err;
         }
       } else if (role === "employeur") {
